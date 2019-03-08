@@ -12,25 +12,63 @@ class House
       "the rat that ate",
       "the malt that lay in",
       "the house that Jack built"]
-  attr_reader :data
+  attr_reader :data, :prefix
 
-  def initialize
-    @data = DATA
+  def initialize(orderer: UnchangedOrderer.new, prefixer: MundanePrefixer.new)
+    @data = orderer.order(DATA)
+    @prefix = prefixer.prefix
   end
 
   def recite
     1.upto(12).collect {|i| line(i)}.join("\n")
   end
 
-  def phrase(num=1)
+  def phrase(num)
     data.last(num).join(" ")
   end
 
   def line(num)
     "#{prefix} #{phrase(num)}.\n"
   end
+end
 
+
+class UnchangedOrderer
+  def order(data)
+    data
+  end
+end
+
+class RandomOrderer
+  def order(data)
+    data.shuffle
+  end
+end
+
+class RandomButLastOrderer
+  def order(data)
+    data[0...-1].shuffle << data.last
+  end
+end
+
+
+class PiratePrefixer
+  def prefix
+    "Thar be"
+  end
+end
+
+class MundanePrefixer
   def prefix
     "This is"
   end
 end
+
+
+puts House.new(orderer: RandomOrderer.new).line(12)
+puts
+puts House.new(prefixer: PiratePrefixer.new).line(12)
+puts
+puts House.new(orderer: RandomOrderer.new, prefixer: PiratePrefixer.new).line(12)
+puts
+puts House.new(orderer: RandomButLastOrderer.new).line(12)
